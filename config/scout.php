@@ -69,8 +69,8 @@ return [
     */
 
     'chunk' => [
-        'searchable' => 500,
-        'unsearchable' => 500,
+        'searchable' => 330000,
+        'unsearchable' => 330000,
     ],
 
     /*
@@ -140,9 +140,10 @@ return [
         'host' => env('MEILISEARCH_HOST', 'http://localhost:7700'),
         'key' => env('MEILISEARCH_KEY'),
         'index-settings' => [
-            // 'users' => [
-            //     'filterableAttributes'=> ['id', 'name', 'email'],
-            // ],
+            'games' => [
+                'filterableAttributes'=> ['name', 'alternative_names', 'category'],
+                'sortableAttributes' => ['created_at'],
+            ],
         ],
     ],
 

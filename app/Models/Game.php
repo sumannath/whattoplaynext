@@ -5,13 +5,28 @@ namespace App\Models;
 use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laravel\Scout\Searchable;
+use Illuminate\Database\Eloquent\Builder;
 
 class Game extends Model
 {
     use Searchable;
 
-    public function genres(): BelongsToMany
+    public function toSearchableArray()
     {
-        return $this->belongsToMany(Genre::class);
+        $array = $this->toArray();
+        if(array_key_exists('alternative_names', $array)) {
+            return [
+                'id'   => $this->getKey(),
+                'name' => $this->name,
+                'category' => $this->category,
+                'alternative_names' => collect($this->alternative_names)->pluck('name')->toArray()
+            ];
+        } else {
+            return [
+                'id'   => $this->getKey(),
+                'category' => $this->category,
+                'name' => $this->name,
+            ];
+        }
     }
 }
