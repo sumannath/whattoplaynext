@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use MongoDB\Laravel\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use MongoDB\Laravel\Relations\BelongsToMany;
 use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -28,5 +28,10 @@ class Game extends Model
                 'name' => $this->name,
             ];
         }
+    }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class);
     }
 }

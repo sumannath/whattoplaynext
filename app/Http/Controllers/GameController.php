@@ -4,7 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Game;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response;
+use Carbon\Carbon;
 
 class GameController extends Controller
 {
@@ -37,32 +42,37 @@ class GameController extends Controller
      */
     public function show(Game $game)
     {
-        //
+        dd($game->name);
     }
 
-    public function search(Request $request)
+    public function addFav($slug, Request $request): RedirectResponse
+    {
+        $id = explode('-', $slug)[0];
+        $game = Game::where('igdb_id', (int) $id)->firstOrFail();
+
+        $request->user()->favGames()->attach($game);
+        return redirect(route('dashboard'));
+    }
+
+    public function dashboard(Request $request): Response
     {
         $query = $request->input('query');
+        $favGames = $request->user()->favGames;
 
-        $searchResults = Game::search($query)->whereIn(
-            'category', [0, 1]
-        )->get();
+        if(strlen($query) < 3) {
+            $searchResults = [];
+        } else {
+            $searchResults = Game::search($query)->whereIn(
+                'category', [0, 1]
+            )->get();
 
-        return response()->json($searchResults);
-
-        // // Extract IDs from the hits
-        // $ids = collect($searchResults['hits'])->pluck('igdb_id')->toArray();
-
-
-        // // Ensure you're using the correct query syntax for MongoDB
-        // $fullModels = Game::whereIn('igdb_id', $ids)->get()
-        //     ->sortBy(fn($model) => array_search($model->id, $ids))
-        //     ->values();
-
-        //     return response()->json([
-        //         'hits' => $fullModels,
-        //     ]);
         }
+
+        return Inertia::render('Dashboard', [
+            'search_games' => $searchResults,
+            'fav_games' => $favGames,
+        ]);
+    }
 
     /**
      * Show the form for editing the specified resource.
